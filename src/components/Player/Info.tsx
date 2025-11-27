@@ -9,7 +9,7 @@ interface PlayerPropsInterface {
   symbol: string;
 }
 
-export default function Player({
+export default function PlayerInfo({
   avatar,
   name,
   rating,

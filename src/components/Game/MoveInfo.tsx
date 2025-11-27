@@ -1,10 +1,10 @@
 import Icon from "@components/Icon";
 import UiButton from "@components/UiKit/UiButton";
-import { GameSymbolsEnum } from "enums";
+import { GameSymbolType } from "consts";
 
 interface GameMoveInfoPropsInterface {
-  currentMove: GameSymbolsEnum;
-  nextMove: GameSymbolsEnum;
+  currentMove: GameSymbolType;
+  nextMove: GameSymbolType;
 }
 
 export default function GameMoveInfo({

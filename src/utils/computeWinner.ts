@@ -1,18 +1,7 @@
-import { GameSymbolsEnum } from "enums";
-import { MOVE_ORDER } from "lib/constants";
-
-export function getNextMove(
-  currentMove: GameSymbolsEnum,
-  playersCount: number
-) {
-  const slicedMoveOrder = MOVE_ORDER.slice(0, playersCount);
-
-  const nextMoveOrder = slicedMoveOrder.indexOf(currentMove) + 1;
-  return slicedMoveOrder[nextMoveOrder] ?? slicedMoveOrder[0];
-}
+import { GameSymbolType } from "consts";
 
 export function computeWinner(
-  cells: (GameSymbolsEnum | null)[],
+  cells: (GameSymbolType | null)[],
   lastMoveIndex: number | null,
   sequenceSize = 3, // Winning sequence length
   fieldSize = 17 // Board size

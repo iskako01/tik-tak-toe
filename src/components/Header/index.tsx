@@ -4,8 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import avatar from "../../../public/avatar.png";
 import Divider from "@components/Divider";
-import ProfileHeader from "@components/Profile";
 import UiButton from "@components/UiKit/UiButton";
+import HeaderProfile from "./Profile";
 
 export default function Header() {
   return (
@@ -22,7 +22,7 @@ export default function Header() {
         </UiButton>
       </div>
       <div className="pr-5">
-        <ProfileHeader avatar={avatar} name="Alisher Iskakov" rating={1234} />
+        <HeaderProfile avatar={avatar} name="Alisher Iskakov" rating={1234} />
       </div>
     </header>
   );

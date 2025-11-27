@@ -5,6 +5,7 @@ interface UiButtonPropsInterface {
   variant?: "primary" | "outline";
   size?: "md" | "lg";
   children: string;
+  handleClick: () => void;
 }
 
 export default function UiButton({
@@ -12,6 +13,7 @@ export default function UiButton({
   size = "md",
   className,
   children,
+  handleClick,
 }: UiButtonPropsInterface) {
   const buttonClassName = clsx(
     "transition-colors py-2",
@@ -27,5 +29,9 @@ export default function UiButton({
     }[size]
   );
 
-  return <button className={buttonClassName}>{children}</button>;
+  return (
+    <button className={buttonClassName} onClick={handleClick}>
+      {children}
+    </button>
+  );
 }

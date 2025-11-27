@@ -3,13 +3,19 @@ import Link from "next/link";
 
 interface GameTitlePropsInterface {
   playersCount: number;
+  link?: string;
+  timeMode?: string;
 }
 
-export default function GameTitle({ playersCount }: GameTitlePropsInterface) {
+export default function GameTitle({
+  playersCount,
+  link = "/",
+  timeMode = "",
+}: GameTitlePropsInterface) {
   return (
     <div className="">
       <Link
-        href="/"
+        href={link}
         className="flex gap-3 items-center text-teal-600 transition-colors hover:text-teal-500"
       >
         <Icon iconName="left-arrow" />
@@ -30,7 +36,7 @@ export default function GameTitle({ playersCount }: GameTitlePropsInterface) {
         <div className="flex items-center gap-1">
           <Icon iconName="time" />
 
-          <span>1 min per move</span>
+          <span>{timeMode}</span>
         </div>
       </div>
     </div>
