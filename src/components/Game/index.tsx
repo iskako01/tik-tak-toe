@@ -1,4 +1,4 @@
-"use-client";
+"use client";
 
 import { useCallback, useEffect, useMemo } from "react";
 import { GameSymbols } from "consts";
@@ -24,12 +24,13 @@ export default function Game() {
 
   const initGameState = useGameStore((state) => state.initGameState);
   const handleTick = useGameStore((state) => state.handleTick);
+  const playerSymbols = useGameStore((state) => state.playerSymbols);
 
   const winnerSequence = useMemo(
     () => computeWinner(cells, lastMoveIndex),
     [cells, lastMoveIndex]
   );
-  const nextMove = getNextMove(currentMove, playersCount, timers);
+  const nextMove = getNextMove(currentMove, playersCount, timers, playerSymbols);
   const timedOutWinner = timers !== null && currentMove === nextMove ? currentMove : null;
   const winner = timedOutWinner ?? cells[winnerSequence[0]] ?? null;
 
@@ -51,42 +52,28 @@ export default function Game() {
       avatar: "",
       name: "PlayerPlayerPlayerPlayerPlayerPlayerPlayer 1",
       rating: 1111,
-      symbol: GameSymbols.CROSS,
+      symbol: playerSymbols[0],
     },
     {
       id: 2,
       avatar: avatar,
       name: "Player 2",
       rating: 2222,
-      symbol: GameSymbols.ZERO,
+      symbol: playerSymbols[1],
     },
     {
       id: 3,
       avatar: avatar,
       name: "Player 3",
       rating: 3333,
-      symbol: GameSymbols.TRIANGLE,
+      symbol: playerSymbols[2] ?? GameSymbols.TRIANGLE,
     },
     {
       id: 4,
       avatar: avatar,
       name: "Player 4",
       rating: 4444,
-      symbol: GameSymbols.SQUARE,
-    },
-    {
-      id: 5,
-      avatar: avatar,
-      name: "Player 5",
-      rating: 4444,
-      symbol: GameSymbols.SQUARE,
-    },
-    {
-      id: 6,
-      avatar: avatar,
-      name: "Player 6",
-      rating: 4444,
-      symbol: GameSymbols.SQUARE,
+      symbol: playerSymbols[3] ?? GameSymbols.SQUARE,
     },
   ].slice(0, playersCount);
 
