@@ -14,6 +14,9 @@ export type State = {
   playersCount: number;
   defaultTimer: number;
   playerSymbols: GameSymbolType[];
+  winSequenceSize: number;
+  isStarted: boolean;
+  isDraw: boolean;
 };
 
 type Actions = {
@@ -25,6 +28,9 @@ type Actions = {
   cellClick: (index: number, now: number) => void;
   handleTick: (now: number) => void;
   setPlayerSymbol: (playerIndex: number, symbol: GameSymbolType) => void;
+  setWinSequenceSize: (size: number) => void;
+  declareDraw: () => void;
+  surrender: (now: number) => void;
 };
 
 export const useGameStore = create<State & Actions>((set) => ({
@@ -37,6 +43,9 @@ export const useGameStore = create<State & Actions>((set) => ({
   currentMoveStart: 0,
   defaultTimer: 10000,
   playerSymbols: [GameSymbols.CROSS, GameSymbols.ZERO],
+  winSequenceSize: 3,
+  isStarted: false,
+  isDraw: false,
 
   initGameState: (playersCount, defaultTimer, currentMoveStart) =>
     set((state) =>
@@ -50,6 +59,17 @@ export const useGameStore = create<State & Actions>((set) => ({
       playerSymbols[playerIndex] = symbol;
       return { playerSymbols };
     }),
+  setWinSequenceSize: (size) => set({ winSequenceSize: size }),
+  declareDraw: () => set({ isDraw: true }),
+  surrender: (now) => set((state) => {
+    if (!state.timers) return state;
+    return {
+      ...state,
+      finalTimers: { ...state.finalTimers, [state.currentMove]: 0 },
+      timers: { ...state.timers, [state.currentMove]: 0 },
+      currentMoveStart: now,
+    };
+  }),
 }));
 
 export const initGameState = (
@@ -67,6 +87,8 @@ export const initGameState = (
     playersCount,
     defaultTimer,
     finalTimers: null,
+    isStarted: true,
+    isDraw: false,
     timers: symbols.reduce<Timers>((timers, symbol) => {
       timers[symbol] = defaultTimer;
       return timers;
@@ -99,12 +121,13 @@ function handleTick(state: State, now: number) {
     return state;
   }
 
-  const nextMove = getNextMove(state.currentMove, state.playersCount, state.timers, state.playerSymbols);
+  const timersWithZero: Timers = { ...state.timers, [state.currentMove]: 0 };
+  const nextMove = getNextMove(state.currentMove, state.playersCount, timersWithZero, state.playerSymbols);
 
   return {
     ...state,
     finalTimers: { ...state.finalTimers, [state.currentMove]: 0 },
-    timers: resetNextTimer(state, nextMove),
+    timers: { ...timersWithZero, [nextMove]: state.defaultTimer },
     currentMoveStart: now,
     currentMove: nextMove,
   };

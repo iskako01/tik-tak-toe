@@ -5,11 +5,15 @@ import { GameSymbolType } from "consts";
 interface GameMoveInfoPropsInterface {
   currentMove: GameSymbolType;
   nextMove: GameSymbolType;
+  onDraw: () => void;
+  onSurrender: () => void;
 }
 
 export default function GameMoveInfo({
   currentMove,
   nextMove,
+  onDraw,
+  onSurrender,
 }: GameMoveInfoPropsInterface) {
   return (
     <div className="flex justify-between items-center mb-3">
@@ -24,8 +28,8 @@ export default function GameMoveInfo({
       </div>
 
       <div className="flex gap-3">
-        <UiButton>Draw</UiButton>
-        <UiButton variant="outline">Surrender</UiButton>
+        <UiButton handleClick={onDraw}>Draw</UiButton>
+        <UiButton variant="outline" handleClick={onSurrender}>Surrender</UiButton>
       </div>
     </div>
   );

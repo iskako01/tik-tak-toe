@@ -7,6 +7,7 @@ import { useGameStore } from "store/gameStore";
 
 interface ModalWinnerPropsInterface {
   winnerName: string;
+  isDraw: boolean;
   players: Player[];
   onClose: () => void;
   playAgain: () => void;
@@ -15,14 +16,15 @@ interface ModalWinnerPropsInterface {
 export default function ModalWinner({
   onClose,
   winnerName,
+  isDraw,
   players,
   playAgain,
 }: ModalWinnerPropsInterface) {
   const finalTimers = useGameStore((state) => state.finalTimers);
 
   return (
-    <UiModal onClose={onClose} isOpen={!!winnerName}>
-      <UiModal.Header>The game is over</UiModal.Header>
+    <UiModal onClose={onClose} isOpen={!!winnerName || isDraw}>
+      <UiModal.Header>{isDraw ? "It's a draw!" : "The game is over"}</UiModal.Header>
       <UiModal.Body>
         {winnerName && <div>Winner is: {winnerName} </div>}
         <div className="justify-between grid grid-cols-2 gap-3">

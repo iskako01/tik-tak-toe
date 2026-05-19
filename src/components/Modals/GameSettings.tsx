@@ -7,6 +7,8 @@ import { GameSymbols, GameSymbolType } from "consts";
 import { useGameStore } from "store/gameStore";
 import clsx from "clsx";
 
+const WIN_SEQUENCE_OPTIONS = [3, 4, 5] as const;
+
 const ALL_SYMBOLS: GameSymbolType[] = [
   GameSymbols.CROSS,
   GameSymbols.ZERO,
@@ -30,6 +32,8 @@ export default function GameSettingsModal({ isOpen, onClose }: GameSettingsModal
   const playerSymbols = useGameStore((state) => state.playerSymbols);
   const playersCount = useGameStore((state) => state.playersCount);
   const setPlayerSymbol = useGameStore((state) => state.setPlayerSymbol);
+  const winSequenceSize = useGameStore((state) => state.winSequenceSize);
+  const setWinSequenceSize = useGameStore((state) => state.setWinSequenceSize);
 
   function handleSelect(playerIndex: number, symbol: GameSymbolType) {
     const conflictIndex = playerSymbols.indexOf(symbol);
@@ -44,6 +48,26 @@ export default function GameSettingsModal({ isOpen, onClose }: GameSettingsModal
       <UiModal.Header>Game Settings</UiModal.Header>
       <UiModal.Body>
         <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-2">
+            <span className="text-sm font-medium text-slate-500">Win condition</span>
+            <div className="flex gap-3">
+              {WIN_SEQUENCE_OPTIONS.map((size) => (
+                <button
+                  key={size}
+                  onClick={() => setWinSequenceSize(size)}
+                  className={clsx(
+                    "px-5 py-3 rounded-lg border-2 text-sm font-semibold transition-colors",
+                    winSequenceSize === size
+                      ? "border-teal-600 bg-teal-50 text-teal-700"
+                      : "border-slate-200 text-slate-600 hover:border-teal-300"
+                  )}
+                >
+                  {size} in a row
+                </button>
+              ))}
+            </div>
+          </div>
+
           {Array.from({ length: playersCount }, (_, i) => (
             <div key={i} className="flex flex-col gap-2">
               <span className="text-sm font-medium text-slate-500">Player {i + 1}</span>

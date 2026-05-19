@@ -8,9 +8,16 @@ import Divider from "@components/Divider";
 import UiButton from "@components/UiKit/UiButton";
 import HeaderProfile from "./Profile";
 import GameSettingsModal from "@components/Modals/GameSettings";
+import { useGameStore } from "store/gameStore";
 
 export default function Header() {
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const initGameState = useGameStore((state) => state.initGameState);
+  const playersCount = useGameStore((state) => state.playersCount);
+
+  function handlePlay() {
+    initGameState(playersCount, 10000, Date.now());
+  }
 
   return (
     <>
@@ -22,7 +29,7 @@ export default function Header() {
 
           <Divider />
 
-          <UiButton className="w-44" size="lg">
+          <UiButton className="w-44" size="lg" handleClick={handlePlay}>
             Play
           </UiButton>
 

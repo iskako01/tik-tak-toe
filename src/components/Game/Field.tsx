@@ -9,6 +9,8 @@ interface GameFieldPropsInterface {
   nextMove: GameSymbolType;
   winnerSequence: number[];
   winner: GameSymbolType | null;
+  onDraw: () => void;
+  onSurrender: () => void;
 }
 
 export default function GameField({
@@ -16,11 +18,13 @@ export default function GameField({
   nextMove,
   winnerSequence,
   winner,
+  onDraw,
+  onSurrender,
 }: GameFieldPropsInterface) {
   return (
     <div className="shadow-md bg-white rounded-2xl w-full">
       <div className="px-8 py-5">
-        <GameMoveInfo currentMove={currentMove} nextMove={nextMove} />
+        <GameMoveInfo currentMove={currentMove} nextMove={nextMove} onDraw={onDraw} onSurrender={onSurrender} />
 
         <GameCells
           winnerSequence={winnerSequence}

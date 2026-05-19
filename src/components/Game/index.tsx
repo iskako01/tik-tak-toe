@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { GameSymbols } from "consts";
 import { Player } from "@components/Player/PlayerInterface";
 import avatar from "../../../public/avatar.png";
@@ -25,22 +25,23 @@ export default function Game() {
   const initGameState = useGameStore((state) => state.initGameState);
   const handleTick = useGameStore((state) => state.handleTick);
   const playerSymbols = useGameStore((state) => state.playerSymbols);
+  const winSequenceSize = useGameStore((state) => state.winSequenceSize);
+  const isStarted = useGameStore((state) => state.isStarted);
+  const isDraw = useGameStore((state) => state.isDraw);
+  const declareDraw = useGameStore((state) => state.declareDraw);
+  const surrender = useGameStore((state) => state.surrender);
 
   const winnerSequence = useMemo(
-    () => computeWinner(cells, lastMoveIndex),
-    [cells, lastMoveIndex]
+    () => computeWinner(cells, lastMoveIndex, winSequenceSize),
+    [cells, lastMoveIndex, winSequenceSize]
   );
   const nextMove = getNextMove(currentMove, playersCount, timers, playerSymbols);
   const timedOutWinner = timers !== null && currentMove === nextMove ? currentMove : null;
   const winner = timedOutWinner ?? cells[winnerSequence[0]] ?? null;
 
-  useEffect(() => {
-    initGameState(playersCount, 10000, Date.now());
-  }, [playersCount]);
-
   useInterval(
     1000,
-    !!currentMoveStart && !winner,
+    !!currentMoveStart && !winner && !isDraw,
     useCallback(() => {
       handleTick(Date.now());
     }, [])
@@ -87,11 +88,20 @@ export default function Game() {
 
   const winnerPlayer = players.find((player) => player.symbol === winner);
 
+  if (!isStarted) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 py-24 text-slate-400">
+        <span className="text-xl">Press <strong className="text-teal-600">Play</strong> to start the game</span>
+      </div>
+    );
+  }
+
   return (
     <>
       <GameTitle playersCount={playersCount} timeMode="1 min per move" />
       <ModalWinner
         winnerName={winnerPlayer?.name || ""}
+        isDraw={isDraw}
         players={players}
         onClose={handlePlayAgain}
         playAgain={handlePlayAgain}
@@ -108,6 +118,8 @@ export default function Game() {
         nextMove={nextMove}
         winnerSequence={winnerSequence}
         winner={winner}
+        onDraw={declareDraw}
+        onSurrender={() => surrender(Date.now())}
       />
     </>
   );
