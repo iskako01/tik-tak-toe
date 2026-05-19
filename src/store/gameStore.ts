@@ -3,13 +3,17 @@ import { MOVE_ORDER } from "lib/constants";
 import { getNextMove } from "utils/getNextMove";
 import { create } from "zustand";
 
+type Timers = Partial<Record<GameSymbolType, number>>;
+
 export type State = {
   cells: (GameSymbolType | null)[];
   currentMove: GameSymbolType;
   currentMoveStart: number;
   lastMoveIndex: number | null;
-  timers: Record<GameSymbolType, number> | null;
+  timers: Timers | null;
+  finalTimers: Timers | null;
   playersCount: number;
+  defaultTimer: number;
 };
 
 type Actions = {
@@ -26,9 +30,11 @@ export const useGameStore = create<State & Actions>((set) => ({
   cells: [],
   currentMove: GameSymbols.CROSS,
   lastMoveIndex: null,
-  timers: {},
+  timers: null,
+  finalTimers: null,
   playersCount: 2,
   currentMoveStart: 0,
+  defaultTimer: 10000,
 
   initGameState: (playersCount, defaultTimer, currentMoveStart) =>
     set((state) =>
@@ -39,7 +45,7 @@ export const useGameStore = create<State & Actions>((set) => ({
 }));
 
 export const initGameState = (
-  state,
+  state: State,
   playersCount: number,
   defaultTimer: number,
   currentMoveStart: number
@@ -49,7 +55,9 @@ export const initGameState = (
   currentMove: GameSymbols.CROSS,
   currentMoveStart,
   playersCount,
-  timers: MOVE_ORDER.reduce((timers, symbol, index) => {
+  defaultTimer,
+  finalTimers: null,
+  timers: MOVE_ORDER.reduce<Timers>((timers, symbol, index) => {
     if (index < playersCount) {
       timers[symbol] = defaultTimer;
     }
@@ -62,36 +70,34 @@ function cellClick(state: State, index: number, now: number): State {
     return state;
   }
 
+  const nextMove = getNextMove(state.currentMove, state.playersCount, state.timers);
+  const elapsed = now - state.currentMoveStart;
+  const remaining = Math.max((state.timers?.[state.currentMove] ?? state.defaultTimer) - elapsed, 0);
+
   return {
     ...state,
     cells: updateCell(state, index),
-    currentMove: getNextMove(
-      state.currentMove,
-      state.playersCount,
-      state.timers
-    ),
+    currentMove: nextMove,
     currentMoveStart: now,
     lastMoveIndex: index,
-    timers: updateTimers(state, now),
+    finalTimers: { ...state.finalTimers, [state.currentMove]: remaining },
+    timers: resetNextTimer(state, nextMove),
   };
 }
 
 function handleTick(state: State, now: number) {
-  console.log(isTimeOver(state, now), { state });
-
   if (!isTimeOver(state, now)) {
     return state;
   }
 
+  const nextMove = getNextMove(state.currentMove, state.playersCount, state.timers);
+
   return {
     ...state,
-    timers: updateTimers(state, now),
+    finalTimers: { ...state.finalTimers, [state.currentMove]: 0 },
+    timers: resetNextTimer(state, nextMove),
     currentMoveStart: now,
-    currentMove: getNextMove(
-      state.currentMove,
-      state.playersCount,
-      state.timers
-    ),
+    currentMove: nextMove,
   };
 }
 
@@ -101,27 +107,21 @@ function updateCell(state: State, index: number) {
   );
 }
 
-function updateTimers(state: State, now: number) {
+function resetNextTimer(state: State, nextMove: GameSymbolType): Timers | null {
   if (!state.timers) {
     return state.timers;
   }
-  console.log({
-    currentMoveStart: state.currentMoveStart,
-    currentMove: state.timers[state.currentMove],
-  });
-
-  const diff = now - state.currentMoveStart;
-  const timer = state.timers[state.currentMove];
 
   return {
     ...state.timers,
-    [state.currentMove]: timer - diff,
+    [nextMove]: state.defaultTimer,
   };
 }
 
 function isTimeOver(state: State, now: number) {
-  const updatedTimers = updateTimers(state, now);
-  const timer = updatedTimers[state.currentMove];
+  if (!state.timers) return false;
+  const elapsed = now - state.currentMoveStart;
+  const timer = state.timers[state.currentMove] ?? 0;
 
-  return timer <= 0;
+  return timer - elapsed <= 0;
 }

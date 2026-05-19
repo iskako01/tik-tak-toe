@@ -1,22 +1,18 @@
 import { GameSymbolType } from "consts";
 
+export type TimerInterface = Partial<Record<GameSymbolType, number>>;
+
 export interface GameStateInterface {
   cells: (GameSymbolType | null)[];
   currentMove: GameSymbolType;
   lastMoveIndex: number | null;
-  timers: GameSymbolType[];
+  timers: TimerInterface;
   playersCount: number;
   currentMoveStart: number;
 }
 
 export interface InitGameStateInterface {
   playersCount: number;
-  defaultTimer: GameSymbolType;
+  defaultTimer: number;
   currentMoveStart: number;
-}
-
-export interface TimerInterface {
-  timers: GameSymbolType[];
-  symbol: GameSymbolType;
-  index: number;
 }

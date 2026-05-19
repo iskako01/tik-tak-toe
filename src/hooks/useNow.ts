@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 
-export default function useNow(interval = 1000, enabled: boolean) {
+export default function useNow(interval = 1000, enabled: boolean, resetKey?: unknown) {
   const [now, setNow] = useState<number | undefined>();
 
   useEffect(() => {
-    if (!enabled) {
-      setNow(undefined);
+    setNow(undefined);
 
+    if (!enabled) {
       return;
     }
 
@@ -17,7 +17,7 @@ export default function useNow(interval = 1000, enabled: boolean) {
     return () => {
       clearInterval(int);
     };
-  }, [interval, enabled]);
+  }, [interval, enabled, resetKey]);
 
   return now;
 }

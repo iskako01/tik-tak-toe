@@ -1,13 +1,20 @@
 import { GameSymbolType } from "consts";
 
 export function computePlayerTimer(
-  timers: Record<GameSymbolType, number> | null,
+  timers: Partial<Record<GameSymbolType, number>> | null,
   currentMove: GameSymbolType,
   currentMoveStart: number,
-  playerSymbol: GameSymbolType
+  playerSymbol: GameSymbolType,
+  finalTimers?: Partial<Record<GameSymbolType, number>> | null
 ) {
-  const timer = timers ? timers[playerSymbol] : 10000;
-  console.log({ timers, timer, playerSymbol, currentMoveStart });
+  if (finalTimers) {
+    return {
+      timer: finalTimers[playerSymbol] ?? 0,
+      timerStartAt: 0,
+    };
+  }
+
+  const timer = timers ? (timers[playerSymbol] ?? 10000) : 10000;
 
   return {
     timer,

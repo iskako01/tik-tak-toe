@@ -47,7 +47,7 @@ export const initGameState = ({
       return acc;
     },
     {} as TimerInterface
-  );
+  ) as TimerInterface;
 
   return {
     cells: new Array(17 * 17).fill(null),
@@ -86,7 +86,7 @@ function updateCell(state: GameStateInterface, index: number) {
 
 function updateTimer(state: GameStateInterface, now: number) {
   const diff = now - state.currentMoveStart;
-  const timer = state.timers[state.currentMove];
+  const timer = state.timers[state.currentMove] ?? 0;
 
   return {
     ...state.timers,

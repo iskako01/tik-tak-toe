@@ -5,7 +5,7 @@ interface UiButtonPropsInterface {
   variant?: "primary" | "outline";
   size?: "md" | "lg";
   children: string;
-  handleClick: () => void;
+  handleClick?: () => void;
 }
 
 export default function UiButton({

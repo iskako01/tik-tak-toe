@@ -1,6 +1,7 @@
 "use-client";
 
 import { useCallback, useEffect, useMemo } from "react";
+import { GameSymbols } from "consts";
 import { Player } from "@components/Player/PlayerInterface";
 import avatar from "../../../public/avatar.png";
 import ModalWinner from "@components/Modals/Winner";
@@ -24,26 +25,25 @@ export default function Game() {
   const initGameState = useGameStore((state) => state.initGameState);
   const handleTick = useGameStore((state) => state.handleTick);
 
-  useEffect(() => {
-    initGameState(playersCount, 10000, Date.now());
-  }, [playersCount]);
-  console.log("currentMoveStart", currentMoveStart);
-
-  useInterval(
-    1000,
-    !!currentMoveStart,
-    useCallback(() => {
-      handleTick(Date.now());
-    }, [])
-  );
-
   const winnerSequence = useMemo(
     () => computeWinner(cells, lastMoveIndex),
     [cells, lastMoveIndex]
   );
   const nextMove = getNextMove(currentMove, playersCount, timers);
-  const winner =
-    currentMove === nextMove ? currentMove : cells[winnerSequence[0]];
+  const timedOutWinner = timers !== null && currentMove === nextMove ? currentMove : null;
+  const winner = timedOutWinner ?? cells[winnerSequence[0]] ?? null;
+
+  useEffect(() => {
+    initGameState(playersCount, 10000, Date.now());
+  }, [playersCount]);
+
+  useInterval(
+    1000,
+    !!currentMoveStart && !winner,
+    useCallback(() => {
+      handleTick(Date.now());
+    }, [])
+  );
 
   const players: Player[] = [
     {
@@ -51,52 +51,49 @@ export default function Game() {
       avatar: "",
       name: "PlayerPlayerPlayerPlayerPlayerPlayerPlayer 1",
       rating: 1111,
-      symbol: "cross",
+      symbol: GameSymbols.CROSS,
     },
     {
       id: 2,
       avatar: avatar,
       name: "Player 2",
       rating: 2222,
-      symbol: "zero",
+      symbol: GameSymbols.ZERO,
     },
     {
       id: 3,
       avatar: avatar,
       name: "Player 3",
       rating: 3333,
-      symbol: "triangle",
+      symbol: GameSymbols.TRIANGLE,
     },
     {
       id: 4,
       avatar: avatar,
       name: "Player 4",
       rating: 4444,
-      symbol: "square",
+      symbol: GameSymbols.SQUARE,
     },
     {
       id: 5,
       avatar: avatar,
       name: "Player 5",
       rating: 4444,
-      symbol: "square",
+      symbol: GameSymbols.SQUARE,
     },
     {
       id: 6,
       avatar: avatar,
       name: "Player 6",
       rating: 4444,
-      symbol: "square",
+      symbol: GameSymbols.SQUARE,
     },
   ].slice(0, playersCount);
 
-  function handleCloseModal() {
-    console.log("handleCloseModal");
+  function handlePlayAgain() {
+    initGameState(playersCount, 10000, Date.now());
   }
 
-  // function handleCellClick(index: number) {
-  //   dispatch({ type: GAME_STATE_ACTIONS.CELL_CLICK, index });
-  // }
   function handlePlayersTimeOver() {
     console.log("handlePlayersTimeOver");
   }
@@ -106,12 +103,12 @@ export default function Game() {
   return (
     <>
       <GameTitle playersCount={playersCount} timeMode="1 min per move" />
-      {/* <ModalWinner
+      <ModalWinner
         winnerName={winnerPlayer?.name || ""}
         players={players}
-        onClose={handleCloseModal}
-        playAgain={handleCloseModal}
-      /> */}
+        onClose={handlePlayAgain}
+        playAgain={handlePlayAgain}
+      />
       <GameInfo
         className="my-4"
         playersCount={playersCount}
