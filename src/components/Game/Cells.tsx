@@ -16,15 +16,25 @@ export default function GameCells({
 }: GameCellsPropsinterface) {
   const cells = useGameStore((state) => state.cells);
   const cellClick = useGameStore((state) => state.cellClick);
+  const fieldSize = useGameStore((state) => state.fieldSize);
 
   const handleCellClick = useCallback(
     (index: number) => cellClick(index, Date.now()),
     []
   );
 
+  const cellSize = fieldSize <= 3 ? 80 : fieldSize <= 7 ? 50 : 30;
+
   return (
     <div className="grid">
-      <div className="grid grid-cols-[repeat(17,_30px)] grid-rows-[repeat(17,_30px)] gap-0 m-auto">
+      <div
+        className="gap-0 m-auto"
+        style={{
+          display: "grid",
+          gridTemplateColumns: `repeat(${fieldSize}, ${cellSize}px)`,
+          gridTemplateRows: `repeat(${fieldSize}, ${cellSize}px)`,
+        }}
+      >
         {cells.map((cell, index) => {
           return (
             <GameCell

@@ -26,22 +26,25 @@ export default function Game() {
   const handleTick = useGameStore((state) => state.handleTick);
   const playerSymbols = useGameStore((state) => state.playerSymbols);
   const winSequenceSize = useGameStore((state) => state.winSequenceSize);
+  const fieldSize = useGameStore((state) => state.fieldSize);
   const isStarted = useGameStore((state) => state.isStarted);
   const isDraw = useGameStore((state) => state.isDraw);
   const declareDraw = useGameStore((state) => state.declareDraw);
   const surrender = useGameStore((state) => state.surrender);
 
   const winnerSequence = useMemo(
-    () => computeWinner(cells, lastMoveIndex, winSequenceSize),
-    [cells, lastMoveIndex, winSequenceSize]
+    () => computeWinner(cells, lastMoveIndex, winSequenceSize, fieldSize),
+    [cells, lastMoveIndex, winSequenceSize, fieldSize]
   );
   const nextMove = getNextMove(currentMove, playersCount, timers, playerSymbols);
   const timedOutWinner = timers !== null && currentMove === nextMove ? currentMove : null;
   const winner = timedOutWinner ?? cells[winnerSequence[0]] ?? null;
+  const isBoardFull = cells.length > 0 && cells.every((cell) => cell !== null);
+  const effectiveDraw = isDraw || (isBoardFull && !winner);
 
   useInterval(
     1000,
-    !!currentMoveStart && !winner && !isDraw,
+    !!currentMoveStart && !winner && !effectiveDraw,
     useCallback(() => {
       handleTick(Date.now());
     }, [])
@@ -100,8 +103,9 @@ export default function Game() {
     <>
       <GameTitle playersCount={playersCount} timeMode="1 min per move" />
       <ModalWinner
-        winnerName={winnerPlayer?.name || ""}
-        isDraw={isDraw}
+        winnerPlayer={winnerPlayer ?? null}
+        isDraw={effectiveDraw}
+        winnerSequence={winnerSequence}
         players={players}
         onClose={handlePlayAgain}
         playAgain={handlePlayAgain}

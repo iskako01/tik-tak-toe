@@ -15,6 +15,7 @@ export type State = {
   defaultTimer: number;
   playerSymbols: GameSymbolType[];
   winSequenceSize: number;
+  fieldSize: number;
   isStarted: boolean;
   isDraw: boolean;
 };
@@ -29,6 +30,8 @@ type Actions = {
   handleTick: (now: number) => void;
   setPlayerSymbol: (playerIndex: number, symbol: GameSymbolType) => void;
   setWinSequenceSize: (size: number) => void;
+  setFieldSize: (size: number) => void;
+  setWinOption: (sequence: number, fieldSize: number, currentMoveStart: number) => void;
   declareDraw: () => void;
   surrender: (now: number) => void;
 };
@@ -44,6 +47,7 @@ export const useGameStore = create<State & Actions>((set) => ({
   defaultTimer: 10000,
   playerSymbols: [GameSymbols.CROSS, GameSymbols.ZERO],
   winSequenceSize: 3,
+  fieldSize: 3,
   isStarted: false,
   isDraw: false,
 
@@ -60,6 +64,14 @@ export const useGameStore = create<State & Actions>((set) => ({
       return { playerSymbols };
     }),
   setWinSequenceSize: (size) => set({ winSequenceSize: size }),
+  setFieldSize: (size) => set({ fieldSize: size }),
+  setWinOption: (sequence, fieldSize, currentMoveStart) =>
+    set((state) => {
+      const updated = { ...state, winSequenceSize: sequence, fieldSize };
+      return state.isStarted
+        ? initGameState(updated, updated.playersCount, updated.defaultTimer, currentMoveStart)
+        : { winSequenceSize: sequence, fieldSize };
+    }),
   declareDraw: () => set({ isDraw: true }),
   surrender: (now) => set((state) => {
     if (!state.timers) return state;
@@ -81,7 +93,7 @@ export const initGameState = (
   const symbols = state.playerSymbols.slice(0, playersCount);
   return {
     ...state,
-    cells: new Array(19 * 19).fill(null),
+    cells: new Array(state.fieldSize * state.fieldSize).fill(null),
     currentMove: symbols[0],
     currentMoveStart,
     playersCount,

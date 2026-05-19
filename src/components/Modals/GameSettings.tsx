@@ -7,7 +7,11 @@ import { GameSymbols, GameSymbolType } from "consts";
 import { useGameStore } from "store/gameStore";
 import clsx from "clsx";
 
-const WIN_SEQUENCE_OPTIONS = [3, 4, 5] as const;
+const WIN_OPTIONS = [
+  { sequence: 3, fieldSize: 3 },
+  { sequence: 4, fieldSize: 7 },
+  { sequence: 5, fieldSize: 15 },
+] as const;
 
 const ALL_SYMBOLS: GameSymbolType[] = [
   GameSymbols.CROSS,
@@ -33,7 +37,14 @@ export default function GameSettingsModal({ isOpen, onClose }: GameSettingsModal
   const playersCount = useGameStore((state) => state.playersCount);
   const setPlayerSymbol = useGameStore((state) => state.setPlayerSymbol);
   const winSequenceSize = useGameStore((state) => state.winSequenceSize);
-  const setWinSequenceSize = useGameStore((state) => state.setWinSequenceSize);
+  const setWinOption = useGameStore((state) => state.setWinOption);
+  const isStarted = useGameStore((state) => state.isStarted);
+  const initGameState = useGameStore((state) => state.initGameState);
+  const defaultTimer = useGameStore((state) => state.defaultTimer);
+
+  function handleWinOption(sequence: number, fieldSize: number) {
+    setWinOption(sequence, fieldSize, Date.now());
+  }
 
   function handleSelect(playerIndex: number, symbol: GameSymbolType) {
     const conflictIndex = playerSymbols.indexOf(symbol);
@@ -41,6 +52,9 @@ export default function GameSettingsModal({ isOpen, onClose }: GameSettingsModal
       setPlayerSymbol(conflictIndex, playerSymbols[playerIndex]);
     }
     setPlayerSymbol(playerIndex, symbol);
+    if (isStarted) {
+      initGameState(playersCount, defaultTimer, Date.now());
+    }
   }
 
   return (
@@ -51,18 +65,19 @@ export default function GameSettingsModal({ isOpen, onClose }: GameSettingsModal
           <div className="flex flex-col gap-2">
             <span className="text-sm font-medium text-slate-500">Win condition</span>
             <div className="flex gap-3">
-              {WIN_SEQUENCE_OPTIONS.map((size) => (
+              {WIN_OPTIONS.map(({ sequence, fieldSize }) => (
                 <button
-                  key={size}
-                  onClick={() => setWinSequenceSize(size)}
+                  key={sequence}
+                  onClick={() => handleWinOption(sequence, fieldSize)}
                   className={clsx(
-                    "px-5 py-3 rounded-lg border-2 text-sm font-semibold transition-colors",
-                    winSequenceSize === size
+                    "flex flex-col items-center px-5 py-3 rounded-lg border-2 text-sm font-semibold transition-colors",
+                    winSequenceSize === sequence
                       ? "border-teal-600 bg-teal-50 text-teal-700"
                       : "border-slate-200 text-slate-600 hover:border-teal-300"
                   )}
                 >
-                  {size} in a row
+                  <span>{sequence} in a row</span>
+                  <span className="text-xs font-normal text-slate-400">{fieldSize}×{fieldSize}</span>
                 </button>
               ))}
             </div>
